@@ -179,16 +179,6 @@ export class MorphLanguageClient implements vscode.CodeLensProvider<HelperLens> 
 
     }
 
-    public get_config() {
-        const cfg = vscode.workspace.getConfiguration('rift')
-        const values: ModelConfig = {
-            'chatModel': cfg.get('chatModel') as any,
-            'completionsModel': cfg.get('completionsModel') as any,
-            'openai_api_key': cfg.get('openaiKey'),
-        }
-        return values
-    }
-
     public provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): HelperLens[] {
         // this returns all of the lenses for the document.
         const items: HelperLens[] = []
@@ -271,13 +261,12 @@ export class MorphLanguageClient implements vscode.CodeLensProvider<HelperLens> 
         })
         await this.client.start()
         this.client.onNotification('morph/progress', this.morph_notify.bind(this))
-        this.client.sendRequest('morph/set_model_config', this.get_config())
         console.log('rift-engine started')
     }
 
 
     async on_config_change(args) {
-        const x = await this.client.sendRequest('morph/set_model_config', this.get_config())
+        const x = await this.client.sendRequest('workspace/didChangeConfiguration', {})
     }
 
 

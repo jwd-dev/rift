@@ -2,9 +2,10 @@ import asyncio
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
-from typing import Any, ClassVar, Literal, Optional, List
-from miniscutil.lsp.document import setdoc
-import miniscutil.lsp.types as lsp
+from typing import Any, ClassVar, Optional, List
+from typing import Literal
+from rift.lsp.document import setdoc
+import rift.lsp.types as lsp
 import importlib.util
 from rift.llm.abstract import AbstractCodeCompletionProvider, InsertCodeResult
 from rift.server.selection import RangeSet

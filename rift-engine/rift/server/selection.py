@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 import itertools
-from typing import Iterable
+from typing import Iterable, Union
 
-from miniscutil.lsp.types import Range, Position, TextDocumentContentChangeEvent
-from miniscutil.ofdict import todict, ofdict
+from rift.lsp.types import Range, Position, TextDocumentContentChangeEvent
+from rift.util.ofdict import todict, ofdict
 
 
 class RangeSet:
     ranges: set[Range]
 
-    def __init__(self, ranges: "Iterable[Range | RangeSet]" = []):
+    def __init__(self, ranges: "Iterable[Union[Range, RangeSet]]" = []):
         self.ranges = set()
         for range in ranges:
             if isinstance(range, RangeSet):

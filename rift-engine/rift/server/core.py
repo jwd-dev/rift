@@ -3,7 +3,7 @@ import sys
 import logging
 from typing import Literal, Union, Optional
 from rift.server.lsp import LspServer
-from miniscutil.rpc.io_transport import AsyncStreamTransport, create_pipe_streams
+from rift.rpc.io_transport import AsyncStreamTransport, create_pipe_streams
 from rift.__about__ import __version__
 import sys
 import time
@@ -69,6 +69,9 @@ class CodeCapabilitiesServer:
             await server.serve_forever()
         except Exception as e:
             logger.error("caught: " + str(e))
+            logger.info(
+                f"connection closed, but Rift is still running and accepting new connections."
+            )
 
     async def run_lsp_tcp_client_mode(self):
         assert isinstance(self.lsp_port, int)

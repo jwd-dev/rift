@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "rift"
 description = ''
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = "Apache-2.0"
 keywords = []
 authors = [
@@ -14,17 +14,21 @@ authors = [
 ]
 dependencies = [
   "aiohttp",
-  "miniscutil==0.2.15",
   "pydantic[dotenv]",
   "rich",
   "fire",
   "gpt4all==0.3.4",
-  "torch",
-  "transformers",
   "tiktoken",
   "sentencepiece",
+  "transformers",
 ]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+# install these to use huggingface models
+hf = [
+  "torch",
+]
 
 [project.urls]
 Documentation = "https://github.com/morph-labs/rift#readme"
