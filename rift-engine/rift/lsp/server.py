@@ -15,6 +15,7 @@ from .types import (
     ApplyWorkspaceEditParams,
     ApplyWorkspaceEditResponse,
 )
+from agents.registry import AgentRegistry
 import rift.lsp.types as lsp
 from collections import defaultdict
 from ..rpc import InitializationMode, rpc_method
@@ -29,6 +30,7 @@ logger = logging.getLogger("LSP")
 class LspServer(ExtraRpc):
     capabilities: ServerCapabilities
     position_encoding = "utf-16"
+    registry: AgentRegistry
     # [todo] consider using io.StringIO for the documents because they are mutating.
     documents: dict[lsp.DocumentUri, lsp.TextDocumentItem]
     change_callbacks: defaultdict[lsp.DocumentUri, set[Callable]]
@@ -39,6 +41,7 @@ class LspServer(ExtraRpc):
         self.change_callbacks = defaultdict(set)
         self.capabilities = ServerCapabilities()
         self.documents = dict()
+        self.registry = AgentRegistry()
         self.fts = dict()
         super().__init__(transport, init_mode=InitializationMode.ExpectInit)
 
@@ -137,6 +140,10 @@ class LspServer(ExtraRpc):
     @rpc_method("textDocument/didClose")
     def on_did_close(self, params: lsp.DidCloseTextDocumentParams):
         pass
+
+    @rpc_method("listAgents")
+    def on_list_agents(self):
+        return self.registry.list_agents()
 
     @rpc_method("$/setTrace")
     def on_set_trace(self, params: lsp.SetTraceParams):

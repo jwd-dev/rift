@@ -4,7 +4,7 @@ from abc import ABC
 from typing import ClassVar, Dict, Literal
 from rift.lsp import LspServer as BaseLspServer, rpc_method
 from rift.llm.openai_types import Message as ChatMessage
-
+import registry
 
 @dataclass
 class RequestInputRequest:

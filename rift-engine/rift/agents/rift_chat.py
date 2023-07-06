@@ -38,6 +38,7 @@ class ChatAgent(Agent):
         obj.generate_response_task = obj.tasks[
             obj.add_task(AgentTask("done", "Generate response", [], None))
         ]
+
         return obj
 
     async def run(self, params: AgentRunParams) -> AgentRunResult:
