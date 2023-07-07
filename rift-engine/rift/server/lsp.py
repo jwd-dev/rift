@@ -13,7 +13,7 @@ from rift.llm.abstract import (
 from rift.llm.create import ModelConfig
 from rift.server.helper import *
 from rift.server.selection import RangeSet
-from rift.llm.abstract import ChatMessage
+from rift.llm.openai_types import Message
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RunChatParams:
     message: str
-    messages: List[ChatMessage]
+    messages: List[Message]
+    position: Optional[lsp.Position]
     textDocument: lsp.TextDocumentIdentifier
 
 
@@ -42,7 +43,7 @@ class LspLogHandler(logging.Handler):
     def __init__(self, server: "LspServer"):
         super().__init__()
         self.server = server
-        self.tasks = set()
+        self.tasks : set[asyncio.Task] = set()
 
     def emit(self, record: logging.LogRecord) -> None:
         if self.server.status != RpcServerStatus.running:
@@ -76,9 +77,10 @@ class ChatHelper:
     running: bool
     server: "LspServer"
     change_futures: dict[str, asyncio.Future[None]]
-    cursor: lsp.Position
-    task: Optional[asyncio.Task]
+    cursor: Optional[lsp.Position]
     """ The position of the cursor (where text will be inserted next). This position is changed if other edits occur above the cursor. """
+    task: Optional[asyncio.Task]
+    subtasks: set[asyncio.Task]
 
     @property
     def uri(self):
@@ -100,7 +102,7 @@ class ChatHelper:
         self.server = server
         self.running = False
         self.change_futures = {}
-        # self.cursor = cfg.position
+        self.cursor = cfg.position
         self.document = server.documents[self.cfg.textDocument.uri]
         self.task = None
         self.subtasks = set()
@@ -146,9 +148,12 @@ class ChatHelper:
         async with response_lock:
             await self.send_progress(response)
         doc_text = self.document.text
+        pos = self.cursor
+        offset = None if pos is None else self.document.position_to_offset(pos)
+
 
         stream = await self.model.run_chat(
-            doc_text, self.cfg.messages, self.cfg.message
+            doc_text, self.cfg.messages, self.cfg.message, offset
         )
 
         async for delta in stream.text:

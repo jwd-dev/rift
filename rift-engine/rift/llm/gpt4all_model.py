@@ -50,7 +50,7 @@ def message_length(msg: Message):
 
 
 def auto_truncate(messages: List[Message]):
-    tail_messages = []
+    tail_messages: List[Message] = []
     running_length = 0
     for msg in reversed(messages[1:]):
         running_length += message_length(msg)
@@ -76,6 +76,7 @@ default_args = dict(
     repeat_last_n=10,
     context_erase=0.5,
 )
+
 
 def generate_stream(self: LLModel, prompt: str, **kwargs) -> TextStream:
     loop = asyncio.get_event_loop()
@@ -122,6 +123,7 @@ def generate_stream(self: LLModel, prompt: str, **kwargs) -> TextStream:
 
     output._feed_task = asyncio.create_task(run_async())
     return output
+
 
 DEFAULT_MODEL_NAME = "ggml-gpt4all-j-v1.3-groovy"
 # DEFAULT_MODEL_NAME = "ggml-mpt-7b-chat"
@@ -197,7 +199,11 @@ class Gpt4AllModel(AbstractCodeCompletionProvider, AbstractChatCompletionProvide
         return InsertCodeResult(code=output, thoughts=None)
 
     async def run_chat(
-        self, document: str, messages: List[Message], message: str
+        self,
+        document: str,
+        messages: List[Message],
+        message: str,
+        cursor_offset: Optional[int] = None,
     ) -> ChatResult:
         logger.debug("run_chat called")
         model = await self._get_model()
